@@ -6,18 +6,13 @@ import (
 	"path/filepath"
 	"strings"
 
-	arg "github.com/alexflint/go-arg"
+	"github.com/alexflint/go-arg"
 )
 
-func runApp(guessCaseSensitive CaseSensitivityGuesser) (string, error) {
-	args := Args{}
-	err := arg.Parse(&args)
-	if err != nil {
-		return "", err
-	}
+func runApp(args Args, guessCaseSensitive CaseSensitivityGuesser) (string, error) {
 	path := args.Path
 	relativeTo := args.RelativeTo
-
+	var err error
 	var isCaseSensitive bool
 
 	switch args.IsCaseSensitive {
@@ -55,7 +50,7 @@ func runApp(guessCaseSensitive CaseSensitivityGuesser) (string, error) {
 type Args struct {
 	RelativeTo      string `arg:"--relative-to" default:"."`
 	Path            string `arg:"positional" help:"if provided path is relative, it will be resolved relative to PWD first, then relative to the path provided with --relative-to"`
-	IsCaseSensitive string `arg:"-c, --case-sensitive" default:"guess"`
+	IsCaseSensitive string `arg:"-c, --case-sensitive" default:"guess" help:"options are true, false, or guess"`
 }
 
 type RunAppArgs struct {
@@ -64,7 +59,9 @@ type RunAppArgs struct {
 }
 
 func main() {
-	output, err := runApp(guessCaseSensitivity)
+	var args Args
+	arg.MustParse(&args)
+	output, err := runApp(args, guessCaseSensitivity)
 	if err != nil {
 		log.Fatal(err)
 	}

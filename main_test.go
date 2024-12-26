@@ -4,6 +4,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/alexflint/go-arg"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -12,26 +13,29 @@ const homeDir = "/Users/faekiva"
 
 func runCaseSensitive(t *testing.T, args ...string) (string, error) {
 	t.Helper()
-
 	os.Args = append([]string{"get-relative-path", "--case-sensitive", "true"}, args...)
-	return runApp(guessCaseSensitivity)
+	var cliArgs Args
+	err := arg.Parse(&cliArgs)
+	require.NoError(t, err)
+	return runApp(cliArgs, guessCaseSensitivity)
 }
 
 func runCaseInsensitive(t *testing.T, args ...string) (string, error) {
 	t.Helper()
 	os.Args = append([]string{"get-relative-path", "--case-sensitive", "false"}, args...)
-	return runApp(guessCaseSensitivity)
+	var cliArgs Args
+	err := arg.Parse(&cliArgs)
+	require.NoError(t, err)
+	return runApp(cliArgs, guessCaseSensitivity)
 }
 
 func runWithGuesser(t *testing.T, guesser CaseSensitivityGuesser, args ...string) (string, error) {
 	t.Helper()
 	os.Args = append([]string{"get-relative-path"}, args...)
-	return runApp(guesser)
-}
-
-func TestTwoArgsNoFlag(t *testing.T) {
-	_, err := runCaseSensitive(t, "/Users/faekiva/go/src/github.com/kiva/get-relative-path", "/Users/faekiva/go/src/github.com/kiva/get-relative-path/main.go")
-	assert.Error(t, err)
+	var cliArgs Args
+	err := arg.Parse(&cliArgs)
+	require.NoError(t, err)
+	return runApp(cliArgs, guesser)
 }
 
 func TestSamePath(t *testing.T) {

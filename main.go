@@ -15,6 +15,8 @@ func runApp(guessCaseSensitive CaseSensitivityGuesser) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	path := args.Path
+	relativeTo := args.RelativeTo
 
 	var isCaseSensitive bool
 
@@ -24,21 +26,35 @@ func runApp(guessCaseSensitive CaseSensitivityGuesser) (string, error) {
 	case "false":
 		isCaseSensitive = false
 	default:
-		isCaseSensitive = guessCaseSensitive(args.RelativeTo, args.Path)
+		isCaseSensitive = guessCaseSensitive(relativeTo, path)
+	}
+
+	if !filepath.IsAbs(relativeTo) {
+		relativeTo, err = filepath.Abs(relativeTo)
+		if err != nil {
+			return "", err
+		}
+	}
+
+	if !filepath.IsAbs(path) {
+		path, err = filepath.Abs(path)
+		if err != nil {
+			return "", err
+		}
 	}
 
 	if !isCaseSensitive {
-		args.RelativeTo = strings.ToLower(args.RelativeTo)
-		args.Path = strings.ToLower(args.Path)
+		relativeTo = strings.ToLower(relativeTo)
+		path = strings.ToLower(path)
 	}
 
-	output, err := filepath.Rel(args.RelativeTo, args.Path)
+	output, err := filepath.Rel(relativeTo, path)
 	return output, err
 }
 
 type Args struct {
 	RelativeTo      string `arg:"--relative-to" default:"."`
-	Path            string `arg:"positional"`
+	Path            string `arg:"positional" help:"if provided path is relative, it will be resolved relative to PWD first, then relative to the path provided with --relative-to"`
 	IsCaseSensitive string `arg:"-c, --case-sensitive" default:"guess"`
 }
 

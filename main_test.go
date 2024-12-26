@@ -60,3 +60,36 @@ func TestCaseInsensitiveGuesser(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, "faekiva", output)
 }
+
+func TestAbsolutePathAgainstPeriod(t *testing.T) {
+	tmpDir := os.TempDir()
+	testDir, err := os.MkdirTemp(tmpDir, "boop")
+	require.NoError(t, err)
+	defer os.RemoveAll(testDir)
+
+	testDir2, err := os.MkdirTemp(testDir, "beep")
+	require.NoError(t, err)
+	defer os.RemoveAll(testDir2)
+
+	initialWd, err := os.Getwd()
+	require.NoError(t, err)
+	defer os.Chdir(initialWd)
+	err = os.Chdir(testDir)
+
+	require.NoError(t, err)
+
+	// There can technically be multiple relative paths to the same directory because of symlinks,
+	// Setting the PWD env var helps us get the most predicable result
+	t.Setenv("PWD", testDir)
+	where, err := runCaseInsensitive(t, tmpDir, "--relative-to", ".")
+	require.NoError(t, err)
+	assert.Equal(t, "..", where)
+
+	where, err = runCaseInsensitive(t, "..", "--relative-to", testDir2)
+	require.NoError(t, err)
+	assert.Equal(t, "../..", where)
+
+	t.Log("tmpDir:", tmpDir)
+	t.Log("testDir:", testDir)
+	t.Log("testDir2:", testDir2)
+}

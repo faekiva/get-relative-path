@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"os"
 	"strings"
 	"testing"
 
@@ -151,4 +152,18 @@ func TestGivenNoPathsAreProvided(t *testing.T) {
 		isCaseSensitive := guessCaseSensitivityInternal(os, osStatCaseInsensitiveEveryPathExists)
 		require.Equal(t, getOSCaseSensitivityFallback(os), isCaseSensitive)
 	}
+}
+
+func TestWithCaseInsensitiveSys(t *testing.T) {
+	tmpDir, err := os.MkdirTemp("", "asd")
+	defer os.RemoveAll(tmpDir)
+	statter := func(path string) (any, error) {
+		info, err := getSysInfo(tmpDir)
+		require.NoError(t, err)
+		return info, nil
+	}
+	require.NoError(t, err)
+
+	isCaseSensitive := guessCaseSensitivityInternal("darwin", statter, tmpDir, strings.ToUpper(tmpDir))
+	require.False(t, isCaseSensitive)
 }

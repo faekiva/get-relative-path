@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"runtime"
 	"strings"
@@ -17,7 +18,7 @@ func getSysInfo(path string) (any, error) {
 	if err != nil {
 		return nil, err
 	}
-	return info.Sys(), nil
+	return fmt.Sprint(info.Sys()), nil
 }
 
 func guessCaseSensitivity(paths ...string) bool {

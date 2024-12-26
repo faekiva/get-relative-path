@@ -65,6 +65,12 @@ func TestCaseInsensitiveGuesser(t *testing.T) {
 	assert.Equal(t, "faekiva", output)
 }
 
+func TestAlwaysStartWithDot(t *testing.T) {
+	output, err := runCaseInsensitive(t, homeDir, "--always-start-with-dot", "--relative-to", "/users")
+	require.NoError(t, err)
+	assert.Equal(t, "./faekiva", output)
+}
+
 func TestAbsolutePathAgainstPeriod(t *testing.T) {
 	tmpDir := os.TempDir()
 	testDir, err := os.MkdirTemp(tmpDir, "boop")

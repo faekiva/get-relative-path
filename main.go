@@ -44,13 +44,17 @@ func runApp(args Args, guessCaseSensitive CaseSensitivityGuesser) (string, error
 	}
 
 	output, err := filepath.Rel(relativeTo, path)
+	if args.AlwaysStartWithDot && !strings.HasPrefix(output, ".") {
+		output = "./" + output
+	}
 	return output, err
 }
 
 type Args struct {
-	RelativeTo      string `arg:"--relative-to" default:"."`
-	Path            string `arg:"positional" help:"if provided path is relative, it will be resolved relative to PWD first, then relative to the path provided with --relative-to"`
-	IsCaseSensitive string `arg:"-c, --case-sensitive" default:"guess" help:"options are true, false, or guess"`
+	RelativeTo         string `arg:"--relative-to" default:"."`
+	Path               string `arg:"positional" help:"if provided path is relative, it will be resolved relative to PWD first, then relative to the path provided with --relative-to"`
+	IsCaseSensitive    string `arg:"-c, --case-sensitive" default:"guess" help:"options are true, false, or guess"`
+	AlwaysStartWithDot bool   `arg:"-d, --always-start-with-dot" help:"if true, the output will always start with . or .."`
 }
 
 type RunAppArgs struct {

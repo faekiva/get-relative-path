@@ -3,51 +3,52 @@ package main
 import (
 	"fmt"
 	"log"
-	"os"
 	"path/filepath"
+	"strings"
 
-	"github.com/urfave/cli/v2"
+	arg "github.com/alexflint/go-arg"
 )
 
-func runApp(args ...string) (string, error) {
-	var relativeTo string
-	var err error
-	output := ""
-	app := &cli.App{
-		Name:  "get-relative-path",
-		Usage: "given a path, return it relative to the current working directory (or a specified path)",
-		Args:  true,
-		Flags: []cli.Flag{
-			&cli.StringFlag{
-				Name:  "relative-to",
-				Value: "",
-				Usage: "path to use as the root of the relative path",
-			},
-		},
-		Action: func(c *cli.Context) error {
-			relativeTo = c.String("relative-to")
-			if c.Value("relative-to") == "" {
-				relativeTo, err = os.Getwd()
-				if err != nil {
-					return err
-				}
-			}
-			if c.NArg() != 1 {
-				return fmt.Errorf("expected 1 argument, got %d", c.Args().Len())
-			}
-			output, err = filepath.Rel(relativeTo, c.Args().First())
-			if err != nil {
-				return err
-			}
-			return nil
-		},
+func runApp() (string, error) {
+	args := Args{}
+	err := arg.Parse(&args)
+	if err != nil {
+		return "", err
 	}
-	err = app.Run(args)
+
+	var isCaseSensitive bool
+
+	switch args.IsCaseSensitive {
+	case "true":
+		isCaseSensitive = true
+	case "false":
+		isCaseSensitive = false
+	default:
+		isCaseSensitive = guessCaseSensitive(args.RelativeTo, args.Path)
+	}
+
+	if !isCaseSensitive {
+		args.RelativeTo = strings.ToLower(args.RelativeTo)
+		args.Path = strings.ToLower(args.Path)
+	}
+
+	output, err := filepath.Rel(args.RelativeTo, args.Path)
 	return output, err
 }
 
+type Args struct {
+	RelativeTo      string `arg:"--relative-to" default:"."`
+	Path            string `arg:"positional"`
+	IsCaseSensitive string `arg:"-c, --case-sensitive" default:"guess"`
+}
+
+type RunAppArgs struct {
+	Args
+	IsCaseSensitive bool
+}
+
 func main() {
-	output, err := runApp(os.Args...)
+	output, err := runApp()
 	if err != nil {
 		log.Fatal(err)
 	}

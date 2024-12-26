@@ -1,30 +1,47 @@
 package main
 
 import (
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
-func run(t *testing.T, args ...string) (string, error) {
+const homeDir = "/Users/faekiva"
+
+func runCaseSensitive(t *testing.T, args ...string) (string, error) {
 	t.Helper()
-	args = append([]string{"get-relative-path"}, args...)
-	return runApp(args...)
+
+	os.Args = append([]string{"get-relative-path", "--case-sensitive", "true"}, args...)
+	return runApp()
 }
+
+func runCaseInsensitive(t *testing.T, args ...string) (string, error) {
+	t.Helper()
+	os.Args = append([]string{"get-relative-path", "--case-sensitive", "false"}, args...)
+	return runApp()
+}
+
 func TestTwoArgsNoFlag(t *testing.T) {
-	_, err := run(t, "/Users/faekiva/go/src/github.com/kiva/get-relative-path", "/Users/faekiva/go/src/github.com/kiva/get-relative-path/main.go")
+	_, err := runCaseSensitive(t, "/Users/faekiva/go/src/github.com/kiva/get-relative-path", "/Users/faekiva/go/src/github.com/kiva/get-relative-path/main.go")
 	assert.Error(t, err)
 }
 
 func TestSamePath(t *testing.T) {
-	output, err := run(t, "/Users/kiva", "--relative-to", "/Users/kiva/")
+	output, err := runCaseSensitive(t, homeDir, "--relative-to", homeDir+"/")
 	require.NoError(t, err)
 	assert.Equal(t, ".", output)
 }
 
 func TestChildPath(t *testing.T) {
-	output, err := run(t, "/Users/kiva", "--relative-to", "/Users")
+	output, err := runCaseSensitive(t, homeDir, "--relative-to", "/Users")
 	require.NoError(t, err)
-	assert.Equal(t, ".", output)
+	assert.Equal(t, "faekiva", output)
+}
+
+func TestCaseInsensitive(t *testing.T) {
+	output, err := runCaseInsensitive(t, homeDir, "--relative-to", "/users")
+	require.NoError(t, err)
+	assert.Equal(t, "faekiva", output)
 }

@@ -14,13 +14,19 @@ func runCaseSensitive(t *testing.T, args ...string) (string, error) {
 	t.Helper()
 
 	os.Args = append([]string{"get-relative-path", "--case-sensitive", "true"}, args...)
-	return runApp()
+	return runApp(guessCaseSensitive)
 }
 
 func runCaseInsensitive(t *testing.T, args ...string) (string, error) {
 	t.Helper()
 	os.Args = append([]string{"get-relative-path", "--case-sensitive", "false"}, args...)
-	return runApp()
+	return runApp(guessCaseSensitive)
+}
+
+func runWithGuesser(t *testing.T, guesser CaseSensitivityGuesser, args ...string) (string, error) {
+	t.Helper()
+	os.Args = append([]string{"get-relative-path"}, args...)
+	return runApp(guesser)
 }
 
 func TestTwoArgsNoFlag(t *testing.T) {
@@ -42,6 +48,15 @@ func TestChildPath(t *testing.T) {
 
 func TestCaseInsensitive(t *testing.T) {
 	output, err := runCaseInsensitive(t, homeDir, "--relative-to", "/users")
+	require.NoError(t, err)
+	assert.Equal(t, "faekiva", output)
+}
+
+func TestCaseInsensitiveGuesser(t *testing.T) {
+	guesser := func(paths ...string) bool {
+		return false
+	}
+	output, err := runWithGuesser(t, guesser, homeDir, "--relative-to", "/users")
 	require.NoError(t, err)
 	assert.Equal(t, "faekiva", output)
 }

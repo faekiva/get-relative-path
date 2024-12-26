@@ -9,7 +9,7 @@ import (
 	arg "github.com/alexflint/go-arg"
 )
 
-func runApp() (string, error) {
+func runApp(guessCaseSensitive CaseSensitivityGuesser) (string, error) {
 	args := Args{}
 	err := arg.Parse(&args)
 	if err != nil {
@@ -48,7 +48,7 @@ type RunAppArgs struct {
 }
 
 func main() {
-	output, err := runApp()
+	output, err := runApp(guessCaseSensitive)
 	if err != nil {
 		log.Fatal(err)
 	}

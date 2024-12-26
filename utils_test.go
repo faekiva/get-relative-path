@@ -76,7 +76,7 @@ func TestOsStatPathExistsInOneCase(t *testing.T) {
 // WHEN I call guessCaseSensitive
 // THEN: it should return false
 func TestAllInsensitive(t *testing.T) {
-	isCaseSensitive := guessCaseSensitiveInternal("darwin", osStatCaseInsensitiveEveryPathExists, testPath)
+	isCaseSensitive := guessCaseSensitivityInternal("darwin", osStatCaseInsensitiveEveryPathExists, testPath)
 	require.False(t, isCaseSensitive)
 }
 
@@ -86,7 +86,7 @@ func TestAllInsensitive(t *testing.T) {
 // WHEN I call guessCaseSensitive
 // THEN: it should return false
 func TestOnlyPathSensitive(t *testing.T) {
-	isCaseSensitive := guessCaseSensitiveInternal("darwin", osStatCaseSensitiveEveryPathExists, testPath)
+	isCaseSensitive := guessCaseSensitivityInternal("darwin", osStatCaseSensitiveEveryPathExists, testPath)
 	require.True(t, isCaseSensitive)
 }
 
@@ -95,7 +95,7 @@ func TestOnlyPathSensitive(t *testing.T) {
 // WHEN I call guessCaseSensitive
 // THEN: it should return false
 func TestNoPathResolvesInsensitive(t *testing.T) {
-	isCaseSensitive := guessCaseSensitiveInternal("darwin", noPathResolves, testPath)
+	isCaseSensitive := guessCaseSensitivityInternal("darwin", noPathResolves, testPath)
 	require.False(t, isCaseSensitive)
 }
 
@@ -104,7 +104,7 @@ func TestNoPathResolvesInsensitive(t *testing.T) {
 // WHEN I call guessCaseSensitive
 // THEN: it should return false
 func TestNoPathResolvesSensitiveButOSIs(t *testing.T) {
-	isCaseSensitive := guessCaseSensitiveInternal("linux", noPathResolves, testLowerCasePath)
+	isCaseSensitive := guessCaseSensitivityInternal("linux", noPathResolves, testLowerCasePath)
 	require.True(t, isCaseSensitive)
 }
 
@@ -113,7 +113,7 @@ func TestNoPathResolvesSensitiveButOSIs(t *testing.T) {
 // WHEN I call guessCaseSensitive
 // THEN: it should return true
 func TestAllSensitive(t *testing.T) {
-	isCaseSensitive := guessCaseSensitiveInternal("linux", osStatPathExistsInOneCase(), testPath)
+	isCaseSensitive := guessCaseSensitivityInternal("linux", osStatPathExistsInOneCase(), testPath)
 	require.True(t, isCaseSensitive)
 }
 
@@ -122,7 +122,7 @@ func TestAllSensitive(t *testing.T) {
 // WHEN I call guessCaseSensitive
 // THEN: it should return false
 func TestAllSameCase(t *testing.T) {
-	isCaseSensitive := guessCaseSensitiveInternal("linux", osStatCaseInsensitiveEveryPathExists, testPath)
+	isCaseSensitive := guessCaseSensitivityInternal("linux", osStatCaseInsensitiveEveryPathExists, testPath)
 	require.False(t, isCaseSensitive)
 }
 
@@ -133,22 +133,22 @@ func TestAllSameCase(t *testing.T) {
 // THEN: it should return true
 func TestOneSameCaseOneDifferentCase(t *testing.T) {
 	for _, os := range []string{"darwin", "linux"} {
-		isCaseSensitive := guessCaseSensitiveInternal(os, osStatOnePathSensitiveOnePathNot(testPathLinuxNFS, testPathWindowsSMB), testPathLinuxNFS, testPathWindowsSMB)
+		isCaseSensitive := guessCaseSensitivityInternal(os, osStatOnePathSensitiveOnePathNot(testPathLinuxNFS, testPathWindowsSMB), testPathLinuxNFS, testPathWindowsSMB)
 		require.True(t, isCaseSensitive)
-		isCaseSensitive = guessCaseSensitiveInternal(os, osStatOnePathSensitiveOnePathNot(testPathLinuxNFS, testPathWindowsSMB), testPathWindowsSMB, testPathLinuxNFS)
+		isCaseSensitive = guessCaseSensitivityInternal(os, osStatOnePathSensitiveOnePathNot(testPathLinuxNFS, testPathWindowsSMB), testPathWindowsSMB, testPathLinuxNFS)
 		require.True(t, isCaseSensitive)
 	}
 }
 
 func TestGivenNoPathsAreUseful(t *testing.T) {
 	for _, os := range []string{"darwin", "linux"} {
-		isCaseSensitive := guessCaseSensitiveInternal(os, osStatCaseInsensitiveEveryPathExists, testPathNoAlphabet)
+		isCaseSensitive := guessCaseSensitivityInternal(os, osStatCaseInsensitiveEveryPathExists, testPathNoAlphabet)
 		require.Equal(t, getOSCaseSensitivityFallback(os), isCaseSensitive)
 	}
 }
 func TestGivenNoPathsAreProvided(t *testing.T) {
 	for _, os := range []string{"darwin", "linux"} {
-		isCaseSensitive := guessCaseSensitiveInternal(os, osStatCaseInsensitiveEveryPathExists)
+		isCaseSensitive := guessCaseSensitivityInternal(os, osStatCaseInsensitiveEveryPathExists)
 		require.Equal(t, getOSCaseSensitivityFallback(os), isCaseSensitive)
 	}
 }

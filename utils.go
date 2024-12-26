@@ -20,11 +20,11 @@ func getSysInfo(path string) (any, error) {
 	return info.Sys(), nil
 }
 
-func guessCaseSensitive(paths ...string) bool {
-	return guessCaseSensitiveInternal(runtime.GOOS, getSysInfo, paths...)
+func guessCaseSensitivity(paths ...string) bool {
+	return guessCaseSensitivityInternal(runtime.GOOS, getSysInfo, paths...)
 }
 
-func guessCaseSensitiveInternal(operatingSystem string, stat MockableGetSysInfo, paths ...string) bool {
+func guessCaseSensitivityInternal(operatingSystem string, stat MockableGetSysInfo, paths ...string) bool {
 	if len(paths) == 0 {
 		return getOSCaseSensitivityFallback(operatingSystem)
 	}

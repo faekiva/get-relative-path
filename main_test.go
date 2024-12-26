@@ -14,13 +14,13 @@ func runCaseSensitive(t *testing.T, args ...string) (string, error) {
 	t.Helper()
 
 	os.Args = append([]string{"get-relative-path", "--case-sensitive", "true"}, args...)
-	return runApp(guessCaseSensitive)
+	return runApp(guessCaseSensitivity)
 }
 
 func runCaseInsensitive(t *testing.T, args ...string) (string, error) {
 	t.Helper()
 	os.Args = append([]string{"get-relative-path", "--case-sensitive", "false"}, args...)
-	return runApp(guessCaseSensitive)
+	return runApp(guessCaseSensitivity)
 }
 
 func runWithGuesser(t *testing.T, guesser CaseSensitivityGuesser, args ...string) (string, error) {

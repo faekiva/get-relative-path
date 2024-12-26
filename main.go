@@ -48,7 +48,7 @@ type RunAppArgs struct {
 }
 
 func main() {
-	output, err := runApp(guessCaseSensitive)
+	output, err := runApp(guessCaseSensitivity)
 	if err != nil {
 		log.Fatal(err)
 	}
